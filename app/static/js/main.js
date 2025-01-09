@@ -14,5 +14,4 @@ var barChart = null;
 function initializeMain()
 {
     popup = Popup();
-    barChart = BarChart();
 }

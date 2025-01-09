@@ -40,17 +40,20 @@ def home():
         "pct_list": pcts,
         "pct_data": selected_pct_data
     }
-    
+
     # render the HTML page passing in relevant data
     return render_template('dashboard/index.html',dashboard_data=dashboard_data)
 
+
 def generate_data_for_tiles():
     """Generate the data for the four home page tiles."""
+    quant_name, quant_perc = db_mod.get_max_quant_and_percentage()
     tile_data = {
         "total_items": db_mod.get_total_number_items(),
-        "avg_act_cost": None,
-        "top_px_item": None,
-        "num_unique_items": None
+        "avg_act_cost": db_mod.get_avg_act(),
+        "top_px_item": quant_name,
+        "top_px_perc": quant_perc,
+        "num_unique_items": db_mod.get_num_unique()
     }
     return tile_data
 
