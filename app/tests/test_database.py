@@ -35,6 +35,10 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(self.db_mod.get_avg_act(),76.22,)
         self.assertEqual(self.db_mod.get_num_unique(), 13935, )
 
+    def test_total_drug_cost (self):
+        "Test that the total drug cost is correct"
+        self.assertEqual(self.db_mod.get_total_drug_cost(), 60316449.37, )
+
     def test_avg_act (self):
         "Test that the average ACT is correct"
         self.assertEqual(self.db_mod.get_avg_act(), 76.22, )
@@ -48,6 +52,14 @@ class DatabaseTests(unittest.TestCase):
     def test_num_unique (self):
         "Test that the number of unique items is correct"
         self.assertEqual(self.db_mod.get_num_unique(), 13935, )
+
+    '''missing def test_prescribed_item_per_pct(self):'''
+
+    def test_distinct_pcts(self):
+        "Test that the number of distinct PCTs is correct"
+        self.assertEqual(len(self.db_mod.get_distinct_pcts()), 34)
+
+    '''missing def test_n_data_for_PCT(self, pct, n):'''
 
 if __name__ == "__main__":
     unittest.main()
