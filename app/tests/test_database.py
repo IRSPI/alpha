@@ -30,14 +30,24 @@ class DatabaseTests(unittest.TestCase):
 
     def test_get_total_number_items(self):
         """Test that the total number of items returns the correct value."""
-        quant_name, quant_perc = self.db_mod.get_max_quant_and_percentage()
         self.assertEqual(self.db_mod.get_total_number_items(),8218165,)
         'Test total items returns correct value'
         self.assertEqual(self.db_mod.get_avg_act(),76.22,)
-        self.assertEqual(quant_name, "Ensure Plus_Milkshake Style Liq (9 Flav)", )
-        self.assertEqual(quant_perc, 2.98, )
         self.assertEqual(self.db_mod.get_num_unique(), 13935, )
 
+    def test_avg_act (self):
+        "Test that the average ACT is correct"
+        self.assertEqual(self.db_mod.get_avg_act(), 76.22, )
+
+    def test_max_item_and_percent (self):
+        "Testing to find the percentage of the item with the highest quantity is correct"
+        quant_name, quant_perc = self.db_mod.get_max_quant_and_percentage()
+        self.assertEqual(quant_name, "Ensure Plus_Milkshake Style Liq (9 Flav)", )
+        self.assertEqual(quant_perc, 2.98, )
+
+    def test_num_unique (self):
+        "Test that the number of unique items is correct"
+        self.assertEqual(self.db_mod.get_num_unique(), 13935, )
 
 if __name__ == "__main__":
     unittest.main()
