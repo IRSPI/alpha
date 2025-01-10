@@ -32,6 +32,11 @@ class Database:
         average_cost = db.session.execute(db.select(func.avg(PrescribingData.ACT_cost))).first()[0]
         return round(average_cost, 2)  # Round the average to 2 decimal places
 
+    def get_total_drug_cost(self):
+        "Returns sum of ACT cost"
+        total_drug_cost = db.session.execute(db.select(func.sum(PrescribingData.ACT_cost))).first()[0]
+        return round(total_drug_cost, 2)  # Round the average to 2 decimal places
+
     def get_max_quant_and_percentage(self):
         "Returns the item with the highest quantity and the percentage this is of the quantity of all prescriptions"
         quant_sum = db.session.execute(db.select(func.sum(PrescribingData.quantity))).first()[0]
