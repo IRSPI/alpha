@@ -40,7 +40,11 @@ def home():
         "pct_list": pcts,
         "pct_data": selected_pct_data
     }
+<<<<<<< Updated upstream
 
+=======
+    db_mod.get_antidepressant_drugs() # Added db function for testing
+>>>>>>> Stashed changes
     # render the HTML page passing in relevant data
     return render_template('dashboard/index.html',dashboard_data=dashboard_data)
 

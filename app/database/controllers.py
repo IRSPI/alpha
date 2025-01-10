@@ -27,6 +27,7 @@ class Database:
         """Return the total number of prescribed items."""
         return int(db.session.execute(db.select(func.sum(PrescribingData.items))).first()[0])
 
+<<<<<<< Updated upstream
     def get_avg_act(self):
         "Returns average ACT cost"
         average_cost = db.session.execute(db.select(func.avg(PrescribingData.ACT_cost))).first()[0]
@@ -72,6 +73,21 @@ class Database:
         db.select(func.count(distinct(PrescribingData.BNF_code)))).scalar()
         return int(total_rows)
 
+=======
+    def get_prescribing_summary(self):
+        """Return the total items and quantities grouped by BNFNAME for BNFCODE starting with '040301'."""
+        result = db.session.execute(
+            db.select(
+                PrescribingData.BNF_name,
+                func.sum(PrescribingData.items).label("total_item"),
+                func.sum(PrescribingData.quantity).label("total_quantity")
+            )
+            .where(PrescribingData.BNF_code.like('040301%'))
+            .group_by(PrescribingData.BNF_name)
+        ).all()
+
+        return result
+>>>>>>> Stashed changes
 
     def get_prescribed_items_per_pct(self):
         """Return the total items per PCT."""
@@ -86,3 +102,19 @@ class Database:
     def get_n_data_for_PCT(self, pct, n):
         """Return all the data for a given PCT."""
         return db.session.query(PrescribingData).filter(PrescribingData.PCT == pct).limit(n).all()
+
+    def get_antidepressant_drugs(self):
+        """
+           Connects to the SQLite database and retrieves a list of antidepressant drugs
+           where the BNFCODE starts with '040301'.
+
+           Parameters:
+           practice_level_prescribing  (str): Path to the SQLite database file.
+
+           Returns:
+           list: A list of drug names (BNFNAME) matching the query.
+        """
+        results = db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('040301%')).limit(5).all()
+        drug_names = [result.BNF_name for result in results]
+
+        print(drug_names)
