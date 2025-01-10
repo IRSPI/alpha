@@ -7,7 +7,7 @@ INSTITUTION:   University of Manchester (FBMH)
 DESCRIPTION:   Contains the Database class that contains all the methods used for accessing the database
 """
 
-from sqlalchemy.sql import func
+from sqlalchemy.sql import func, desc, distinct
 from flask import Blueprint
 
 from app import db
@@ -32,23 +32,40 @@ class Database:
         average_cost = db.session.execute(db.select(func.avg(PrescribingData.ACT_cost))).first()[0]
         return round(average_cost, 2)  # Round the average to 2 decimal places
 
-    def get_total_drug_cost(self):
-        "Returns sum of ACT cost"
-        total_drug_cost = db.session.execute(db.select(func.sum(PrescribingData.ACT_cost))).first()[0]
-        return round(total_drug_cost, 2)  # Round the average to 2 decimal places
 
     def get_max_quant_and_percentage(self):
-        "Returns the item with the highest quantity and the percentage this is of the quantity of all prescriptions"
-        quant_sum = db.session.execute(db.select(func.sum(PrescribingData.quantity))).first()[0]
-        quant_max = db.session.execute(db.select(func.max(PrescribingData.quantity))).first()[0]
-        quant_name = db.session.execute(db.select(PrescribingData.BNF_name, PrescribingData.quantity).where(PrescribingData.quantity == quant_max)).first()[0]
-        quant_perc = round(quant_max*100/quant_sum,2)
+        """
+        Returns the item (BNFNAME) with the highest total quantity and the percentage
+        this total is of the quantity of all prescriptions.
+        """
+        # Calculate the overall total quantity
+        quant_sum = db.session.execute(
+            db.select(func.sum(PrescribingData.quantity))
+        ).scalar()
+
+        # Calculate total quantities for each BNFNAME
+        total_quantities = db.session.execute(
+            db.select(
+                PrescribingData.BNF_name,
+                func.sum(PrescribingData.quantity).label('TotalQuantity')
+            ).group_by(PrescribingData.BNF_name)
+            .order_by(desc('TotalQuantity'))
+        ).fetchall()
+
+        # Get the item with the highest total quantity
+        top_item = total_quantities[0]
+        quant_name = top_item[0]
+        quant_max = top_item[1]
+
+        # Calculate the percentage
+        quant_perc = round(quant_max * 100 / quant_sum, 2)
 
         return quant_name, quant_perc
 
     def get_num_unique(self):
         "Returns average ACT cost"
-        total_rows = db.session.execute(db.select(func.count('*')).select_from(PrescribingData)).scalar()
+        total_rows = db.session.execute(
+        db.select(func.count(distinct(PrescribingData.BNF_code)))).scalar()
         return int(total_rows)
 
 

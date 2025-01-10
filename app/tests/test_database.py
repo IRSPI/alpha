@@ -34,13 +34,11 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(self.db_mod.get_total_number_items(),8218165,)
         'Test total items returns correct value'
         self.assertEqual(self.db_mod.get_avg_act(),76.22,)
-        self.assertEqual(quant_name, "Methadone HCl_Oral Soln 1mg/1ml S/F", )
-        self.assertEqual(quant_perc, 0.14, )
-        self.assertEqual(self.db_mod.get_num_unique(), 791341, )
+        self.assertEqual(quant_name, "Ensure Plus_Milkshake Style Liq (9 Flav)", )
+        self.assertEqual(quant_perc, 2.98, )
+        self.assertEqual(self.db_mod.get_num_unique(), 13935, )
 
 
 if __name__ == "__main__":
     unittest.main()
 
-if __name__ == "__main__":
-    unittest.main()
