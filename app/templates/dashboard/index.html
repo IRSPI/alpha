@@ -25,6 +25,7 @@
     <!-- Custom scripts for the dashboard -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/popup.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/calc.js') }}"></script>
 
     <!-- Page script -->
     <script type=text/javascript>
@@ -72,6 +73,28 @@
           <div class="nav-link" onclick="popup.showCeatCalcFormPopup();" title="Click to use the creatinine clearance calculator">
             <i class="fas fa-calculator"></i>
             <span>Creatinine clearance</span>
+          </div>
+        </li>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+
+                <!-- Nav Item - Utilities Collapse Menu -->
+        <li class="nav-item">
+          <div class="nav-link" onclick="popup.showConvCalcFormPopup();" title="Click to use the conversion calculator">
+            <i class="fas fa-calculator"></i>
+            <span>Conversion Calculator</span>
+          </div>
+        </li>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+
+        <!-- Nav Item - Utilities Collapse Menu -->
+        <li class="nav-item">
+          <div class="nav-link" onclick="popup.showBMICalcFormPopup();" title="Click to use the BMI calculator">
+            <i class="fas fa-calculator"></i>
+            <span>BMI Calculator</span>
           </div>
         </li>
 
@@ -339,6 +362,102 @@
                 </div>
             </div>
 
+            <div id="BMI-calc">
+              <div class="card">
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">BMI Calculator</h6>
+                </div>
+                <div class="card-body">
+                  <p>Select height unit:</p>
+                  <label class="radio-inline">
+                    <input type="radio" name="height-unit" value="cm" checked onclick="toggleHeightUnit('cm')"> Centimeters (cm)
+                  </label>
+                  <label class="radio-inline">
+                    <input type="radio" name="height-unit" value="feet" onclick="toggleHeightUnit('feet')"> Feet and Inches
+                  </label>
+
+                  <br /><br />
+
+                  <p>Height:</p>
+                  <div id="height-input">
+                    <input type="range" id="height-slider" min="50" max="300" value="170" oninput="updateHeightDisplay()">
+                    <span id="height-display">170 cm</span>
+                  </div>
+
+                  <div id="height-feet-inches" style="display: none;">
+                    <input type="number" id="height-feet" min="1" max="8" value="5" oninput="updateHeightDisplay()"> ft
+                    <input type="number" id="height-inches" min="0" max="11" value="7" oninput="updateHeightDisplay()"> in
+                  </div>
+
+                  <br /><br />
+
+                  <p>Select weight unit:</p>
+                  <label class="radio-inline">
+                    <input type="radio" name="weight-unit" value="kg" checked onclick="toggleWeightUnit('kg')"> Kilograms (kg)
+                  </label>
+                  <label class="radio-inline">
+                    <input type="radio" name="weight-unit" value="lbs" onclick="toggleWeightUnit('lbs')"> Pounds (lbs)
+                  </label>
+
+                  <br /><br />
+
+                  <p>Weight:</p>
+                  <input type="range" id="weight-slider" min="10" max="300" value="70" oninput="updateWeightDisplay()">
+                  <span id="weight-display">70 kg</span>
+
+                  <br /><br />
+
+                  <hr />
+
+                  <button type="button" class="btn btn-primary" onclick="calculateBMI()" title="Click to calculate the BMI">Calculate</button>
+                  <button type="button" class="btn btn-danger" onclick="popup.hideBMICalcFormPopup();" title="Close the calculator">Close</button>
+
+                  <br /><br />
+                  <p id="bmi-result" style="font-weight: bold;"></p>
+                </div>
+              </div>
+            </div>
+
+            <div id="conversion-calc">
+              <div class="card">
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">Unit Conversion Calculator</h6>
+                </div>
+                <div class="card-body">
+                  <!-- Weight Conversion -->
+                  <p><strong>Weight Conversion:</strong></p>
+                  <label for="stones">Stones:</label>
+                  <input type="number" id="stones" min="0" placeholder="0" style="width: 100px;" oninput="convertWeight()"> stones
+                  <label for="pounds">Pounds:</label>
+                  <input type="number" id="pounds" min="0" max="13" placeholder="0" style="width: 100px;" oninput="convertWeight()"> lbs
+                  <br>
+                  <label for="kilograms">Kilograms:</label>
+                  <input type="number" id="kilograms" min="0" placeholder="0" style="width: 100px;" oninput="convertWeight(true)"> kg
+                  <br><br>
+
+                  <!-- Temperature Conversion -->
+                  <p><strong>Temperature Conversion:</strong></p>
+                  <label for="fahrenheit">Fahrenheit:</label>
+                  <input type="number" id="fahrenheit" placeholder="0" style="width: 100px;" oninput="convertTemperature()"> °F
+                  <label for="celsius">Celsius:</label>
+                  <input type="number" id="celsius" placeholder="0" style="width: 100px;" oninput="convertTemperature(true)"> °C
+                  <br><br>
+
+                  <!-- Height Conversion -->
+                  <p><strong>Height Conversion:</strong></p>
+                  <label for="feet">Feet:</label>
+                  <input type="number" id="feet" min="0" placeholder="0" style="width: 100px;" oninput="convertHeight()"> ft
+                  <label for="inches">Inches:</label>
+                  <input type="number" id="inches" min="0" max="11" placeholder="0" style="width: 100px;" oninput="convertHeight()"> in
+                  <br>
+                  <label for="centimeters">Centimeters:</label>
+                  <input type="number" id="centimeters" min="0" placeholder="0" style="width: 100px;" oninput="convertHeight(true)"> cm
+                  <br><br>
+
+                  <button type="button" class="btn btn-danger" onclick="popup.hideConvCalcFormPopup();" title="Close the calculator">Close</button>
+                </div>
+              </div>
+            </div>
             <!-- About popup -->
             <div id="about-box">
               <div class="card">
@@ -432,6 +551,7 @@
 
     <!-- Custom scripts for all pages-->
     <script src="{{ url_for('static', filename='js/sb-admin-2.min.js') }}"></script>
+
 
   </body>
 </html>

@@ -43,6 +43,35 @@ function Popup()
         this.entryFormPopup.style.display = "none";
     }
 
+
+    // Show the BMI calculator form dialog
+    popup.showBMICalcFormPopup = function() {
+        this.showMask(); // Call the existing method to show the mask
+        this.bmiFormPopup = document.getElementById("BMI-calc"); // Reference the BMI calculator element
+        this.bmiFormPopup.style.display = "block"; // Make the BMI calculator visible
+        this.positionDialogue(this.bmiFormPopup); // Position the dialog box
+    };
+
+    // Hide the BMI calculator form dialog
+    popup.hideBMICalcFormPopup = function() {
+        this.hideMask(); // Call the existing method to hide the mask
+        this.bmiFormPopup.style.display = "none"; // Hide the BMI calculator
+    };
+
+    // Show the BMI calculator form dialog
+    popup.showConvCalcFormPopup = function() {
+        this.showMask(); // Call the existing method to show the mask
+        this.bmiFormPopup = document.getElementById("conversion-calc"); // Reference the BMI calculator element
+        this.bmiFormPopup.style.display = "block"; // Make the BMI calculator visible
+        this.positionDialogue(this.ConvFormPopup); // Position the dialog box
+    };
+
+    // Hide the BMI calculator form dialog
+    popup.hideConvCalcFormPopup = function() {
+        this.hideMask(); // Call the existing method to hide the mask
+        this.ConvFormPopup.style.display = "none"; // Hide the conversion calculator
+    };
+
     // show the about popup
     popup.showAboutPopup = function()
     {
