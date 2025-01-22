@@ -35,7 +35,9 @@
           $(document).ready(function () {
               initializeMain();
               var graphs = {{ dashboard_data.top_items_plot_data.graphJSON | safe }};
-              Plotly.plot('chart',graphs,{});    
+              Plotly.plot('chart',graphs,{});
+              var graph_infection = {{ dashboard_data.infection_drug_data.graphJSON | safe }};
+              Plotly.plot('chart_infection',graph_infection,{});
           });
     </script>
   </head>
@@ -277,26 +279,13 @@
                 <!-- Infection treatment drugs -->
                 <div class="card shadow mb-4">
                   <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Infection treatment drug as % of all infection treatments</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">{{dashboard_data.infection_drug_data.header}}</h6>
                   </div>
                   <div class="card-body">
-                    <div class="chart-pie pt-4">
-                      <div id="infection-treatment-drugs" class="chart-pie"></div>
-                    </div>
-                    <hr />
-                    <div class="mt-4 text-center small">
-                      <span class="mr-2">
-                        <i class="fas fa-circle text-primary"></i> {{ dashboard_data.infection_drug_data.header }}
-                      </span>
-                    </div>
+                    <div id="chart_infection" class="chart"></div>
+                    <p>{{dashboard_data.infection_drug_data.description}}</p>
                   </div>
                 </div>
-
-                <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-                <script type="text/javascript">
-                  var infectionDrugData = JSON.parse('{{ dashboard_data.infection_drug_data.graphJSON | tojson | safe }}');
-                  Plotly.newPlot('infection-treatment-drugs', infectionDrugData.data, infectionDrugData.layout);
-                </script>
               </div>
             </div>
 
