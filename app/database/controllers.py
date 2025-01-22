@@ -86,3 +86,13 @@ class Database:
     def get_n_data_for_PCT(self, pct, n):
         """Return all the data for a given PCT."""
         return db.session.query(PrescribingData).filter(PrescribingData.PCT == pct).limit(n).all()
+    
+    def get_infection_drug_count(self):
+        counts = {
+            '0501': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0501%')).count(),
+            '0502': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0502%')).count(),
+            '0503': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0503%')).count(),
+            '0504': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0504%')).count(),
+            '0505': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0505%')).count(),
+        }
+        return counts

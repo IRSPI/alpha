@@ -14,6 +14,7 @@ import plotly.express as px
 import pandas as pd
 from flask import Blueprint, render_template, request,jsonify
 from app.database.controllers import Database
+import logging
 
 views = Blueprint('dashboard', __name__, url_prefix='/dashboard')
 
@@ -38,7 +39,8 @@ def home():
         "tile_data_items": generate_data_for_tiles(),  
         "top_items_plot_data": generate_top_px_items_barchart_data(),
         "pct_list": pcts,
-        "pct_data": selected_pct_data
+        "pct_data": selected_pct_data,
+        "infection_drug_data": generate_infection_drug_data()
     }
 
     # render the HTML page passing in relevant data
@@ -82,3 +84,24 @@ def generate_top_px_items_barchart_data():
     }
     return plot_data
 
+def generate_infection_drug_data():
+    counts = db_mod.get_infection_drug_count()
+
+    labels = ["Antibacterials", "Antifungal", "Antiviral", "Antiprotozoal", "Anthelmintics"]
+    values = [counts['0501'], counts['0502'], counts['0503'], counts['0504'], counts['0505']]
+
+    fig = px.pie(values=values, names=labels, title="Percentage of infection drug use by BNF Code")
+    fig.update_traces(textinfo='percent+label')
+
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    header = "Percentage of infection drug use"
+    description = "Pie chart showing the percentage of infection drug use by BNF code."
+    plot_data = {
+        'graphJSON': graphJSON,
+        'header': header,
+        'description': description
+    }
+    # Debug statement
+    logging.debug(f"Generated plot data: {plot_data}")  
+
+    return plot_data
