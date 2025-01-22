@@ -78,6 +78,55 @@ class Database:
         result = db.session.execute(db.select(func.sum(PrescribingData.items).label('item_sum')).group_by(PrescribingData.PCT)).all()
         return self.convert_tuple_list_to_raw(result)
 
+    def get_opiod_drugs(self):
+        """
+        Return the percentage contribution of QUANTITY for specified BNFCODE prefixes.
+        Methadone: 0410030C0
+        Buprenorphine: 0410030A0
+        Suboxone: 0410030B0
+        Naltrexone: 0410030E0
+        """
+        # Define the BNFCODE prefixes and their corresponding drug names
+        bnfcodes = {
+            '0410030C0': 'Methadone',
+            '0410030A0': 'Buprenorphine',
+            '0410030B0': 'Suboxone',
+            '0410030E0': 'Naltrexone',
+        }
+
+        # Query the database to filter by prefixes and sum QUANTITY
+        results = (
+            db.session.query(
+                PrescribingData.BNF_code,
+                func.sum(PrescribingData.items).label('quantity_sum')
+            )
+            .filter(
+                db.or_(
+                    *[PrescribingData.BNF_code.like(f"{prefix}%") for prefix in bnfcodes.keys()]
+                )
+            )
+            .group_by(PrescribingData.BNF_code)
+            .all()
+        )
+
+        # Aggregate quantities by drug name
+        quantities_by_drug = {drug: 0 for drug in bnfcodes.values()}
+        for code, quantity in results:
+            # Match the code prefix to the corresponding drug name
+            for prefix, drug in bnfcodes.items():
+                if code.startswith(prefix):
+                    quantities_by_drug[drug] += quantity
+                    break
+
+        # Calculate total QUANTITY across the specified BNFCODEs
+        total_quantity = sum(quantities_by_drug.values())
+
+        # Convert quantities to percentages
+        return {
+            drug: round((quantity / total_quantity) * 100,2) if total_quantity > 0 else 0
+            for drug, quantity in quantities_by_drug.items()
+        }
+
     def get_distinct_pcts(self):
         """Return the distinct PCT codes."""
         result = db.session.execute(db.select(PrescribingData.PCT).distinct()).all()
