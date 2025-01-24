@@ -61,8 +61,8 @@ function Popup()
     // Show the BMI calculator form dialog
     popup.showConvCalcFormPopup = function() {
         this.showMask(); // Call the existing method to show the mask
-        this.bmiFormPopup = document.getElementById("conversion-calc"); // Reference the BMI calculator element
-        this.bmiFormPopup.style.display = "block"; // Make the BMI calculator visible
+        this.ConvFormPopup = document.getElementById("conversion-calc"); // Reference the BMI calculator element
+        this.ConvFormPopup.style.display = "block"; // Make the BMI calculator visible
         this.positionDialogue(this.ConvFormPopup); // Position the dialog box
     };
 
