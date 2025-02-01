@@ -24,4 +24,12 @@ python run.py
 <br>
 First let the file run, then copy and paste the link displayed below into a browser for the dashboard to successfully load:
 <br>
+http://127.0.0.1:5000/dashboard/home/
 
+
+## Further Info
+For further information, please get in touch with the following email address: mariyah.begum@postgrad.manchester.ac.uk
+<br>
+*Last updated: 01/02/2025*
+<br>
+*README Version:* 1.0
