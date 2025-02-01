@@ -349,19 +349,21 @@
                         <input type="radio" name="sex" value="f"> Female
                       </label>
                       <p>Age of patient (years):</p>
-                      <input type="number" min="1" max="120" name="patients-age" />
+                      <input type="number" id="patients-age" min="1" max="120" name="patients-age" />
                       <br /><br />
                       <p>Weight of patient (kg):</p>
-                      <input type="number" min="1" max="120" name="patients-weight" />
+                      <input type="number" id ="patients-weight" min="1" max="120" name="patients-weight" />
                       <br /><br />
                       <p>Serum creatinine (micromol/L):</p>
-                      <input type="number" min="1" max="120" name="patients-serum" />
+                      <input type="number" id="patients-serum" min="1" max="120" name="patients-serum" />
                       <br />
                     </div>
                     <br />
                     <hr />
-                    <button type="button" class="btn btn-primary" title="Click to calculate the creatinine clearance">Calculate</button>
+                    <button type="button" class="btn btn-primary" onclick="calcCreatinineClearance()" title="Click to calculate the creatinine clearance">Calculate</button>
                     <button type="button" class="btn btn-danger" onclick="popup.hideCeatCalcFormPopup();" title="Close the window">Close</button>
+                   <br /><br />
+                  <p id="serumCreatinineClearance-result" style="font-weight: bold;"></p>
                   </div>
                 </div>
             </div>
