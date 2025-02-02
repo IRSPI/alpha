@@ -9,42 +9,146 @@ DESCRIPTION:   Views module. Renders HTML pages and passes in associated data to
                dashboard.
 """
 import json
+import os
 import plotly
 import plotly.express as px
 import pandas as pd
-from flask import Blueprint, render_template, request,jsonify
-from app.database.controllers import Database
+from flask import Blueprint, render_template, request,jsonify, redirect, url_for, flash, session
+from flask_login import login_user, logout_user, login_required, LoginManager, current_user
+from app.database.controllers import Database, register_user, authenticate_user
 import logging
+from app.database.models import db, User
+from flask_mail import Message
+from app import mail, app
 
 views = Blueprint('dashboard', __name__, url_prefix='/dashboard')
+
+auth = Blueprint('auth', __name__)
+
+login_manager = LoginManager()
+login_manager.login_view = "auth.login"
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+@auth.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+
+        message = register_user(username, email, password)
+        flash(message)
+        return redirect(url_for('auth.login'))
+
+    return render_template('register.html')
+
+@auth.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        if 'email' not in request.form or 'password' not in request.form:
+            flash("Invalid form submission. Please try again.", "danger")
+            return redirect(url_for('auth.login'))
+
+        email = request.form['email']
+        password = request.form['password']
+        user = authenticate_user(email, password)
+
+        if user:
+            login_user(user)
+            flash("Login successful!", "success")
+            return redirect(url_for('dashboard.home'))
+        else:
+            flash("Invalid email or password. Please try again.", "danger")
+
+    return render_template('login.html')
+
+
+@auth.route('/logout')
+@login_required
+def logout():
+    session.pop('_flashes', None)  # Clears any existing flash messages
+    logout_user()
+    flash("Logged out successfully.", "info")
+    return redirect(url_for('auth.login'))
+
+@auth.route('/reset_password', methods=['GET', 'POST'])
+def reset_request():
+    """Allow users to request a password reset link via email."""
+    if request.method == 'POST':
+        email = request.form['email']
+        user = User.query.filter_by(email=email).first()
+
+        if user:
+            send_reset_email(user)
+            flash('An email has been sent with instructions to reset your password.', 'info')
+        else:
+            flash('No account found with that email.', 'danger')
+
+    return render_template('reset_request.html')
+
+@auth.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_token(token):
+    """Allow users to reset their password after clicking the link in the email."""
+    user = User.verify_reset_token(token)
+    if not user:
+        flash('This link is invalid or has expired.', 'danger')
+        return redirect(url_for('auth.reset_request'))
+
+    if request.method == 'POST':
+        password = request.form['password']
+        user.password = User.hash_password(password)
+        db.session.commit()
+        flash('Your password has been updated! You can now log in.', 'success')
+        return redirect(url_for('auth.login'))
+
+    return render_template('reset_password.html', token=token)
+
 
 # get the database class
 db_mod = Database()
 
 # Set the route and accepted methods
 @views.route('/home/', methods=['GET', 'POST'])
+@login_required  # This forces login before accessing this page
 def home():
     """Render the home page of the dashboard passing in data to populate dashboard."""
     pcts = db_mod.get_distinct_pcts()
     if request.method == 'POST':
-        # if selecting PCT for table, update based on user choice
         form = request.form
         selected_pct_data = db_mod.get_n_data_for_PCT(str(form['pct-option']), 5)
     else:
-        # pick a default PCT to show
         selected_pct_data = db_mod.get_n_data_for_PCT(str(pcts[0]), 5)
 
-    # prepare data structure to send to front end to update display
-    dashboard_data = {    
-        "tile_data_items": generate_data_for_tiles(),  
+    dashboard_data = {
+        "tile_data_items": generate_data_for_tiles(),
         "top_items_plot_data": generate_top_px_items_barchart_data(),
         "pct_list": pcts,
         "pct_data": selected_pct_data,
         "infection_drug_data": generate_infection_drug_data()
     }
 
-    # render the HTML page passing in relevant data
-    return render_template('dashboard/index.html',dashboard_data=dashboard_data)
+    return render_template('dashboard/index.html', dashboard_data=dashboard_data)
+
+def send_reset_email(user):
+    """Send the user an email with a password reset link."""
+    token = user.get_reset_token()
+    reset_link = url_for('auth.reset_token', token=token, _external=True)
+
+    msg = Message(
+        'Password Reset Request',
+        sender= os.getenv('EMAIL_USER'),  # Explicitly set the sender
+        recipients=[user.email]
+    )
+    msg.body = f'''To reset your password, visit the following link:
+{reset_link}
+
+If you did not request this, please ignore this email.
+'''
+    mail.send(msg)
+
 
 
 def generate_data_for_tiles():
@@ -62,15 +166,15 @@ def generate_data_for_tiles():
 
 def generate_top_px_items_barchart_data():
     """Generate the data needed to populate the number of most prescrbed items per PCT barchart."""
-    
+
     # Create a dataframe to store the database query results
     df = pd.DataFrame({
         "data_values": db_mod.get_prescribed_items_per_pct(),
         "pct_codes": db_mod.get_distinct_pcts()
     })
     # Generate the plot
-    fig = px.bar(df, x="pct_codes", y="data_values", 
-                 labels={"pct_codes": "PCT code", 
+    fig = px.bar(df, x="pct_codes", y="data_values",
+                 labels={"pct_codes": "PCT code",
                          "data_values": "Prescribed items (number)"}).update_xaxes(categoryorder="sum descending")
 
     # Convert the plot for rendering and add any metadata (description/header)
@@ -102,6 +206,6 @@ def generate_infection_drug_data():
         'description': description
     }
     # Debug statement
-    logging.debug(f"Generated plot data: {plot_data}")  
+    logging.debug(f"Generated plot data: {plot_data}")
 
     return plot_data

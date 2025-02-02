@@ -11,9 +11,52 @@ from sqlalchemy.sql import func, desc, distinct
 from flask import Blueprint
 
 from app import db
-from app.database.models import PrescribingData, PracticeData
+from app.database.models import PrescribingData, PracticeData, User
+
+def register_user(username, email, password):
+    """Registers a new user if email is not already taken."""
+    existing_user = User.query.filter_by(email=email).first()
+    if existing_user:
+        return "Email already registered"
+
+    hashed_password = User.hash_password(password)
+    new_user = User(username=username, email=email, password=hashed_password)
+
+    db.session.add(new_user)
+    db.session.commit()
+    return "User registered successfully"
+
+
+def authenticate_user(email, password):
+    """Authenticates a user by email and password."""
+    user = User.query.filter_by(email=email).first()
+    if user and User.check_password(user.password, password):
+        return user
+    return None
+
 
 database = Blueprint('dbutils', __name__, url_prefix='/dbutils')
+
+def register_user(username, email, password):
+    """Registers a new user if email is not already taken."""
+    existing_user = User.query.filter_by(email=email).first()
+    if existing_user:
+        return "Email already registered"
+
+    hashed_password = User.hash_password(password)
+    new_user = User(username=username, email=email, password=hashed_password)
+
+    db.session.add(new_user)
+    db.session.commit()
+    return "User registered successfully"
+
+
+def authenticate_user(email, password):
+    """Authenticates a user by email and password."""
+    user = User.query.filter_by(email=email).first()
+    if user and User.check_password(user.password, password):
+        return user
+    return None
 
 class Database:
     """Class for managing database queries."""
