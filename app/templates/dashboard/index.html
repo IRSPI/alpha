@@ -38,6 +38,8 @@
               Plotly.plot('chart',graphs,{});
               var graph_infection = {{ dashboard_data.infection_drug_data.graphJSON | safe }};
               Plotly.plot('chart_infection',graph_infection,{});
+              var graph_opioid = {{ dashboard_data.opioid_dependence_data.graphJSON | safe }};
+              Plotly.plot('chart_opioid',graph_opioid,{});
           });
     </script>
   </head>
@@ -328,11 +330,26 @@
                       </table>
                     </div>
                   </div>
+               <!---------------------test code--------------->
+
+       <!-- Opioid Dependence Data -->
+                <div class="card shadow mb-4">
+                  <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">{{dashboard_data.opioid_dependence_data.header}}</h6>
+                  </div>
+                  <div class="card-body">
+                    <div id="chart_opioid" class="chart1"></div>
+                    <p>{{dashboard_data.opioid_dependence_data.description}}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+      <!------------------------------------------------------->
                 </div>
               </div>
             </div>
           </div>
-          
+
             <!-- Creatinine clearance calculator -->
             <div id="creat-calc">
               <div class="card">

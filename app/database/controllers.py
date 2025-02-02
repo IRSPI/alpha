@@ -96,3 +96,12 @@ class Database:
             '0505': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0505%')).count(),
         }
         return counts
+
+    def get_opioid_dependence_count(self):
+        opioid_counts = {
+            'Buprenorphine': db.session.query(PrescribingData).filter(PrescribingData.BNF_name.like('Buprenorphine%')).count(),
+            'Lofexidine': db.session.query(PrescribingData).filter(PrescribingData.BNF_name.like('Lofexidine%')).count(),
+            'Methadone': db.session.query(PrescribingData).filter(PrescribingData.BNF_name.like('Methadone%')).count(),
+            'Naltrexone': db.session.query(PrescribingData).filter(PrescribingData.BNF_name.like('Naltrexone%')).count(),
+        }
+        return opioid_counts
