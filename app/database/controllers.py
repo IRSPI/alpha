@@ -89,11 +89,16 @@ class Database:
     
     def get_infection_drug_count(self):
         counts = {
-            '0501': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0501%')).count(),
-            '0502': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0502%')).count(),
-            '0503': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0503%')).count(),
-            '0504': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0504%')).count(),
-            '0505': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0505%')).count(),
+            '0501': db.session.query(func.sum(PrescribingData.items))
+                    .filter(PrescribingData.BNF_code.like('0501%')).scalar() or 0,
+            '0502': db.session.query(func.sum(PrescribingData.items))
+                    .filter(PrescribingData.BNF_code.like('0502%')).scalar() or 0,
+            '0503': db.session.query(func.sum(PrescribingData.items))
+                    .filter(PrescribingData.BNF_code.like('0503%')).scalar() or 0,
+            '0504': db.session.query(func.sum(PrescribingData.items))
+                    .filter(PrescribingData.BNF_code.like('0504%')).scalar() or 0,
+            '0505': db.session.query(func.sum(PrescribingData.items))
+                    .filter(PrescribingData.BNF_code.like('0505%')).scalar() or 0,
         }
         return counts
 
