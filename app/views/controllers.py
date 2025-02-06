@@ -40,7 +40,9 @@ def home():
         "top_items_plot_data": generate_top_px_items_barchart_data(),
         "pct_list": pcts,
         "pct_data": selected_pct_data,
-        "infection_drug_data": generate_infection_drug_data()
+        "infection_drug_data": generate_infection_drug_data(), 
+        "top_pct_with_most_practices": get_pct_with_most_practices(),
+        "num_practices": get_num_practices_for_pct(get_pct_with_most_practices())
     }
 
     # render the HTML page passing in relevant data
@@ -105,3 +107,13 @@ def generate_infection_drug_data():
     logging.debug(f"Generated plot data: {plot_data}")  
 
     return plot_data
+
+def get_pct_with_most_practices():
+    """Get the PCT code that contains the most GP practices."""
+    pct_code, _ = db_mod.get_pct_with_most_gp_practices()
+    return pct_code
+
+def get_num_practices_for_pct(pct_code):
+    """Get the number of GP practices for a given PCT code."""
+    _, num_practices = db_mod.get_pct_with_most_gp_practices()
+    return num_practices

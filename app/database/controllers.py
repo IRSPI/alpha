@@ -96,3 +96,21 @@ class Database:
             '0505': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0505%')).count(),
         }
         return counts
+    
+    '''Create and add a new summary tile with details of the PCT that contains the most GP practices. PCT code and number of practices'''
+    def get_pct_with_most_gp_practices(self):
+        """
+        Returns the PCT code that contains the most GP practices and the number of practices.
+        """
+        result = db.session.execute(
+            db.select(
+                PrescribingData.PCT,
+                func.count(distinct(PrescribingData.practice)).label('practice_count')
+            ).group_by(PrescribingData.PCT)
+            .order_by(desc('practice_count'))
+        ).first()
+
+        pct_code = result[0]
+        practice_count = result[1]
+
+        return pct_code, practice_count
