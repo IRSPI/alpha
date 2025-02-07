@@ -101,6 +101,24 @@ class Database:
                     .filter(PrescribingData.BNF_code.like('0505%')).scalar() or 0,
         }
         return counts
+    
+    '''Create and add a new summary tile with details of the PCT that contains the most GP practices. PCT code and number of practices'''
+    def get_pct_with_most_gp_practices(self):
+        """
+        Returns the PCT code that contains the most GP practices and the number of practices.
+        """
+        result = db.session.execute(
+            db.select(
+                PrescribingData.PCT,
+                func.count(distinct(PrescribingData.practice)).label('practice_count')
+            ).group_by(PrescribingData.PCT)
+            .order_by(desc('practice_count'))
+        ).first()
+
+        pct_code = result[0]
+        practice_count = result[1]
+
+        return pct_code, practice_count
 
     def get_opioid_dependence_count(self):
         opioid_counts = {
@@ -110,3 +128,4 @@ class Database:
             'Naltrexone': db.session.query(PrescribingData).filter(PrescribingData.BNF_name.like('Naltrexone%')).count(),
         }
         return opioid_counts
+
