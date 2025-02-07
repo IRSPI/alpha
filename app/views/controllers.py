@@ -40,9 +40,10 @@ def home():
         "top_items_plot_data": generate_top_px_items_barchart_data(),
         "pct_list": pcts,
         "pct_data": selected_pct_data,
-        "infection_drug_data": generate_infection_drug_data(), 
         "top_pct_with_most_practices": get_pct_with_most_practices(),
         "num_practices": get_num_practices_for_pct(get_pct_with_most_practices())
+        "infection_drug_data": generate_infection_drug_data(),
+        "opioid_dependence_data": generate_opioid_dependence_data(),
     }
 
     # render the HTML page passing in relevant data
@@ -64,15 +65,15 @@ def generate_data_for_tiles():
 
 def generate_top_px_items_barchart_data():
     """Generate the data needed to populate the number of most prescrbed items per PCT barchart."""
-    
+
     # Create a dataframe to store the database query results
     df = pd.DataFrame({
         "data_values": db_mod.get_prescribed_items_per_pct(),
         "pct_codes": db_mod.get_distinct_pcts()
     })
     # Generate the plot
-    fig = px.bar(df, x="pct_codes", y="data_values", 
-                 labels={"pct_codes": "PCT code", 
+    fig = px.bar(df, x="pct_codes", y="data_values",
+                 labels={"pct_codes": "PCT code",
                          "data_values": "Prescribed items (number)"}).update_xaxes(categoryorder="sum descending")
 
     # Convert the plot for rendering and add any metadata (description/header)
@@ -104,9 +105,10 @@ def generate_infection_drug_data():
         'description': description
     }
     # Debug statement
-    logging.debug(f"Generated plot data: {plot_data}")  
+    logging.debug(f"Generated plot data: {plot_data}")
 
     return plot_data
+
 
 def get_pct_with_most_practices():
     """Get the PCT code that contains the most GP practices."""
@@ -117,3 +119,27 @@ def get_num_practices_for_pct(pct_code):
     """Get the number of GP practices for a given PCT code."""
     _, num_practices = db_mod.get_pct_with_most_gp_practices()
     return num_practices
+
+def generate_opioid_dependence_data():
+    counts = db_mod.get_opioid_dependence_count()
+
+    labels = ["Buprenorphine", "Lofexidine", "Methadone", "Naltrexone"]
+    values = [counts['Buprenorphine'], counts['Lofexidine'], counts['Methadone'], counts['Naltrexone']]
+
+    fig1 = px.pie(values=values, names=labels, title="Percentage of Opioid dependence by BNF Name")
+    fig1.update_traces(textinfo='percent+label')
+
+    graphJSON1 = json.dumps(fig1, cls=plotly.utils.PlotlyJSONEncoder)
+    header1 = "Percentage of Opioid dependence "
+    description1 = "Pie chart showing the Opioid dependence by BNF name."
+    plot_data1 = {
+        'graphJSON': graphJSON1,
+        'header': header1,
+        'description': description1
+    }
+    # Debug statement
+    logging.debug(f"Generated plot data: {plot_data1}")
+
+    return plot_data1
+
+

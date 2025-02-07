@@ -89,11 +89,16 @@ class Database:
     
     def get_infection_drug_count(self):
         counts = {
-            '0501': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0501%')).count(),
-            '0502': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0502%')).count(),
-            '0503': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0503%')).count(),
-            '0504': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0504%')).count(),
-            '0505': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0505%')).count(),
+            '0501': db.session.query(func.sum(PrescribingData.items))
+                    .filter(PrescribingData.BNF_code.like('0501%')).scalar() or 0,
+            '0502': db.session.query(func.sum(PrescribingData.items))
+                    .filter(PrescribingData.BNF_code.like('0502%')).scalar() or 0,
+            '0503': db.session.query(func.sum(PrescribingData.items))
+                    .filter(PrescribingData.BNF_code.like('0503%')).scalar() or 0,
+            '0504': db.session.query(func.sum(PrescribingData.items))
+                    .filter(PrescribingData.BNF_code.like('0504%')).scalar() or 0,
+            '0505': db.session.query(func.sum(PrescribingData.items))
+                    .filter(PrescribingData.BNF_code.like('0505%')).scalar() or 0,
         }
         return counts
     
@@ -114,3 +119,13 @@ class Database:
         practice_count = result[1]
 
         return pct_code, practice_count
+
+    def get_opioid_dependence_count(self):
+        opioid_counts = {
+            'Buprenorphine': db.session.query(PrescribingData).filter(PrescribingData.BNF_name.like('Buprenorphine%')).count(),
+            'Lofexidine': db.session.query(PrescribingData).filter(PrescribingData.BNF_name.like('Lofexidine%')).count(),
+            'Methadone': db.session.query(PrescribingData).filter(PrescribingData.BNF_name.like('Methadone%')).count(),
+            'Naltrexone': db.session.query(PrescribingData).filter(PrescribingData.BNF_name.like('Naltrexone%')).count(),
+        }
+        return opioid_counts
+
