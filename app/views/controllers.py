@@ -41,7 +41,7 @@ def home():
         "pct_list": pcts,
         "pct_data": selected_pct_data,
         "top_pct_with_most_practices": get_pct_with_most_practices(),
-        "num_practices": get_num_practices_for_pct(get_pct_with_most_practices())
+        "num_practices": get_num_practices_for_pct(get_pct_with_most_practices()),
         "infection_drug_data": generate_infection_drug_data(),
         "opioid_dependence_data": generate_opioid_dependence_data(),
     }
