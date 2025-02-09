@@ -18,6 +18,20 @@ database = Blueprint('dbutils', __name__, url_prefix='/dbutils')
 class Database:
     """Class for managing database queries."""
     
+    def top_ten_practices_total_items(self):
+        """Returns top ten practices that prescribe the most items"""
+        top_practices = (
+            db.session.query(
+                PrescribingData.practice, 
+                func.sum(PrescribingData.items).label("total_items")
+            )
+            .filter(PrescribingData.items.isnot(None))  # Ensure no NULL values
+            .group_by(PrescribingData.practice)
+            .order_by(desc("total_items"))  # Sort in descending order
+            .limit(10)
+            .all()
+        )  
+    
     def convert_tuple_list_to_raw(self, tuple_list):
         """Helper function to convert results from tuple list to plain list."""
         order_row = [tuple(row) for row in tuple_list]
