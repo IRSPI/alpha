@@ -60,7 +60,6 @@ def generate_data_for_tiles():
         "top_px_item": quant_name,
         "top_px_perc": quant_perc,
         "num_unique_items": db_mod.get_num_unique(),
-        distinct_areas": db_mod.get_distinct_areas(),
 
     }
     return tile_data
