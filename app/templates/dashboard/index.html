@@ -25,6 +25,7 @@
     <!-- Custom scripts for the dashboard -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/popup.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/calc.js') }}"></script>
 
     <!-- Page script -->
     <script type=text/javascript>
@@ -34,7 +35,11 @@
           $(document).ready(function () {
               initializeMain();
               var graphs = {{ dashboard_data.top_items_plot_data.graphJSON | safe }};
-              Plotly.plot('chart',graphs,{});    
+              Plotly.plot('chart',graphs,{});
+              var graph_infection = {{ dashboard_data.infection_drug_data.graphJSON | safe }};
+              Plotly.plot('chart_infection',graph_infection,{});
+              var graph_opioid = {{ dashboard_data.opioid_dependence_data.graphJSON | safe }};
+              Plotly.plot('chart_opioid',graph_opioid,{});
           });
     </script>
   </head>
@@ -54,7 +59,7 @@
         <hr class="sidebar-divider my-0">
         <!-- Nav Item - Dashboard -->
         <li class="nav-item active">
-          <div class="nav-link" onclick="popup.showAboutPopup();">
+          <div class="nav-link" onclick="popup.showAboutPopup();" title="Click to see the information of the dashboard">
             <i class="fas fa-info-circle"></i>
             <span>About</span></div>
         </li>
@@ -69,9 +74,31 @@
 
         <!-- Nav Item - Utilities Collapse Menu -->
         <li class="nav-item">
-          <div class="nav-link" onclick="popup.showCeatCalcFormPopup();">
+          <div class="nav-link" onclick="popup.showCeatCalcFormPopup();" title="Click to use the creatinine clearance calculator">
             <i class="fas fa-calculator"></i>
             <span>Creatinine clearance</span>
+          </div>
+        </li>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+
+        <!-- Nav Item - Utilities Collapse Menu -->
+        <li class="nav-item">
+          <div class="nav-link" onclick="popup.showConvCalcFormPopup();" title="Click to use the conversion calculator">
+            <i class="fas fa-calculator"></i>
+            <span>Conversion Calculator</span>
+          </div>
+        </li>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+
+        <!-- Nav Item - Utilities Collapse Menu -->
+        <li class="nav-item">
+          <div class="nav-link" onclick="popup.showBMICalcFormPopup();" title="Click to use the BMI calculator">
+            <i class="fas fa-calculator"></i>
+            <span>BMI Calculator</span>
           </div>
         </li>
 
@@ -90,7 +117,7 @@
           <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
             <!-- Sidebar Toggle (Topbar) -->
-            <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+            <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3" title="Click to hide/show the topbar">
               <i class="fas fa-arrow-left"></i>
             </button>
 
@@ -108,7 +135,7 @@
                     <div class="input-group">
                       <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
                       <div class="input-group-append">
-                        <button class="btn btn-primary" type="button">
+                        <button class="btn btn-primary" type="button" title="Click to search">
                           <i class="fas fa-search fa-sm"></i>
                         </button>
                       </div>
@@ -121,7 +148,7 @@
 
                 <!-- Sidebar Toggler (Sidebar) -->
                 <div class="text-center d-none d-md-inline">
-                  <button class="rounded-circle border-0" id="sidebarToggle"></button>
+                  <button class="rounded-circle border-0" id="sidebarToggle" title="Click to hide the sidebar"></button>
                 </div>
 
           </nav>
@@ -155,14 +182,14 @@
                 </div>
               </div>
 
-              <!-- Mean ACT cost tile -->
+              <!-- Total cost tile -->
               <div class="col-xl-3 col-md-6 mb-4">
                 <div class="card border-left-primary shadow h-100 py-2">
                   <div class="card-body">
                     <div class="row no-gutters align-items-center">
                       <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Average ACT cost:</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">£</div>
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Drug Cost:</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">£ {{ dashboard_data.tile_data_items.total_drug_cost }}</div>
                       </div>
                       <div class="col-auto">
                         <i class="fas fa-pound-sign fa-2x text-gray-300"></i>
@@ -172,27 +199,17 @@
                 </div>
               </div>
 
-              <!-- Top prescribed items tile -->
+              <!-- Mean ACT cost tile -->
               <div class="col-xl-3 col-md-6 mb-4">
                 <div class="card border-left-primary shadow h-100 py-2">
                   <div class="card-body">
                     <div class="row no-gutters align-items-center">
                       <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">TOP PRESCRIBED ITEM:</div>
-                        <span class="text_col_black"></span>
-                        <div class="row no-gutters align-items-center">
-                          <div class="col-auto">
-                            <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">%</div>
-                          </div>
-                          <div class="col">
-                            <div class="progress progress-sm mr-2">
-                              <div class="progress-bar bg-info" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                          </div>
-                        </div>
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Average ACT cost:</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">£ {{ dashboard_data.tile_data_items.avg_act_cost }}</div>
                       </div>
                       <div class="col-auto">
-                        <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        <i class="fas fa-pound-sign fa-2x text-gray-300"></i>
                       </div>
                     </div>
                   </div>
@@ -206,10 +223,64 @@
                     <div class="row no-gutters align-items-center">
                       <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">NUMBER OF UNIQUE ITEMS:</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800"></div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ dashboard_data.tile_data_items.num_unique_items }}</div>
                       </div>
                       <div class="col-auto">
                         <i class="fas fa-fingerprint fa-2x text-gray-300"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+              <!-- Top prescribed items tile -->
+              <div class="col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                  <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                      <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">TOP PRESCRIBED ITEM: {{ dashboard_data.tile_data_items.top_px_item}}</div>
+                        <span class="text_col_black"></span>
+                        <div class="row no-gutters align-items-center">
+                          <div class="col-auto">
+                            <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ dashboard_data.tile_data_items.top_px_perc}}%</div>
+                          </div>
+                          <div class="col">
+                            <div class="progress progress-sm mr-2">
+                              <div class="progress-bar bg-info" role="progressbar" style="width: {{ dashboard_data.tile_data_items.top_px_perc }}%" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-auto">
+                        <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!--Top PCT with most practices-->
+              <!-- PCT with most practices tile -->
+              <div class="col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                  <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                      <div class="col mr-2">
+                        <div class="row">
+                          <div class="col-md-6">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">PCT with Most Practices:</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ dashboard_data.top_pct_with_most_practices }}</div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Number of Practices:</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ dashboard_data.num_practices }}</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-auto">
+                        <i class="fas fa-hospital fa-2x text-gray-300"></i>
                       </div>
                     </div>
                   </div>
@@ -236,9 +307,11 @@
                 <!-- Infection treatment drugs -->
                 <div class="card shadow mb-4">
                   <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Infection treatment drug as % of all infection treatments</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">{{dashboard_data.infection_drug_data.header}}</h6>
                   </div>
                   <div class="card-body">
+                    <div id="chart_infection" class="chart"></div>
+                    <p>{{dashboard_data.infection_drug_data.description}}</p>
                   </div>
                 </div>
               </div>
@@ -283,11 +356,26 @@
                       </table>
                     </div>
                   </div>
+               <!---------------------test code--------------->
+
+       <!-- Opioid Dependence Data -->
+                <div class="card shadow mb-4">
+                  <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">{{dashboard_data.opioid_dependence_data.header}}</h6>
+                  </div>
+                  <div class="card-body">
+                    <div id="chart_opioid" class="chart1"></div>
+                    <p>{{dashboard_data.opioid_dependence_data.description}}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+      <!------------------------------------------------------->
                 </div>
               </div>
             </div>
           </div>
-          
+
             <!-- Creatinine clearance calculator -->
             <div id="creat-calc">
               <div class="card">
@@ -304,34 +392,178 @@
                         <input type="radio" name="sex" value="f"> Female
                       </label>
                       <p>Age of patient (years):</p>
-                      <input type="number" min="1" max="120" name="patients-age" />
+                      <input type="number" id="patients-age" min="1" max="120" name="patients-age" />
                       <br /><br />
                       <p>Weight of patient (kg):</p>
-                      <input type="number" min="1" max="120" name="patients-weight" />
+                      <input type="number" id ="patients-weight" min="1" max="120" name="patients-weight" />
                       <br /><br />
                       <p>Serum creatinine (micromol/L):</p>
-                      <input type="number" min="1" max="120" name="patients-serum" />
+                      <input type="number" id="patients-serum" min="1" max="120" name="patients-serum" />
                       <br />
                     </div>
                     <br />
                     <hr />
-                    <button type="button" class="btn btn-primary">Calculate</button>
-                    <button type="button" class="btn btn-danger" onclick="popup.hideCeatCalcFormPopup();">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="calcCreatinineClearance()" title="Click to calculate the creatinine clearance">Calculate</button>
+                    <button type="button" class="btn btn-danger" onclick="popup.hideCeatCalcFormPopup();" title="Close the window">Close</button>
+                   <br /><br />
+                  <p id="serumCreatinineClearance-result" style="font-weight: bold;"></p>
                   </div>
                 </div>
             </div>
 
+            <div id="BMI-calc">
+              <div class="card">
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">BMI Calculator</h6>
+                </div>
+                <div class="card-body">
+                  <p>Select height unit:</p>
+                  <label class="radio-inline">
+                    <input type="radio" name="height-unit" value="cm" checked onclick="toggleHeightUnit('cm')"> Centimeters (cm)
+                  </label>
+                  <label class="radio-inline">
+                    <input type="radio" name="height-unit" value="feet" onclick="toggleHeightUnit('feet')"> Feet and Inches
+                  </label>
+
+                  <br /><br />
+
+                  <p>Height:</p>
+                  <div id="height-input">
+                    <input type="range" id="height-slider" min="50" max="300" value="170" oninput="updateHeightDisplay()">
+                    <span id="height-display">170 cm</span>
+                  </div>
+
+                  <div id="height-feet-inches" style="display: none;">
+                    <input type="number" id="height-feet" min="1" max="8" value="5" oninput="updateHeightDisplay()"> ft
+                    <input type="number" id="height-inches" min="0" max="11" value="7" oninput="updateHeightDisplay()"> in
+                  </div>
+
+                  <br /><br />
+
+                  <p>Select weight unit:</p>
+                  <label class="radio-inline">
+                    <input type="radio" name="weight-unit" value="kg" checked onclick="toggleWeightUnit('kg')"> Kilograms (kg)
+                  </label>
+                  <label class="radio-inline">
+                    <input type="radio" name="weight-unit" value="lbs" onclick="toggleWeightUnit('lbs')"> Pounds (lbs)
+                  </label>
+
+                  <br /><br />
+
+                  <p>Weight:</p>
+                  <input type="range" id="weight-slider" min="10" max="300" value="70" oninput="updateWeightDisplay()">
+                  <span id="weight-display">70 kg</span>
+
+                  <br /><br />
+
+                  <hr />
+
+                  <button type="button" class="btn btn-primary" onclick="calculateBMI()" title="Click to calculate the BMI">Calculate</button>
+                  <button type="button" class="btn btn-danger" onclick="popup.hideBMICalcFormPopup();" title="Close the calculator">Close</button>
+
+                  <br /><br />
+                  <p id="bmi-result" style="font-weight: bold;"></p>
+                </div>
+              </div>
+            </div>
+
+            <div id="conversion-calc">
+              <div class="card">
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">Unit Conversion Calculator</h6>
+                </div>
+                <div class="card-body">
+                  <!-- Weight Conversion -->
+                  <p><strong>Weight Conversion:</strong></p>
+                  <label for="stones">Stones:</label>
+                  <input type="number" id="stones" min="0" placeholder="0" style="width: 100px;" oninput="convertWeight()"> stones
+                  <label for="pounds">Pounds:</label>
+                  <input type="number" id="pounds" min="0" max="13" placeholder="0" style="width: 100px;" oninput="convertWeight()"> lbs
+                  <br>
+                  <label for="kilograms">Kilograms:</label>
+                  <input type="number" id="kilograms" min="0" placeholder="0" style="width: 100px;" oninput="convertWeight(true)"> kg
+                  <br><br>
+
+                  <!-- Temperature Conversion -->
+                  <p><strong>Temperature Conversion:</strong></p>
+                  <label for="fahrenheit">Fahrenheit:</label>
+                  <input type="number" id="fahrenheit" placeholder="0" style="width: 100px;" oninput="convertTemperature()"> °F
+                  <label for="celsius">Celsius:</label>
+                  <input type="number" id="celsius" placeholder="0" style="width: 100px;" oninput="convertTemperature(true)"> °C
+                  <br><br>
+
+                  <!-- Height Conversion -->
+                  <p><strong>Height Conversion:</strong></p>
+                  <label for="feet">Feet:</label>
+                  <input type="number" id="feet" min="0" placeholder="0" style="width: 100px;" oninput="convertHeight()"> ft
+                  <label for="inches">Inches:</label>
+                  <input type="number" id="inches" min="0" max="11" placeholder="0" style="width: 100px;" oninput="convertHeight()"> in
+                  <br>
+                  <label for="centimeters">Centimeters:</label>
+                  <input type="number" id="centimeters" min="0" placeholder="0" style="width: 100px;" oninput="convertHeight(true)"> cm
+                  <br><br>
+
+                  <button type="button" class="btn btn-danger" onclick="popup.hideConvCalcFormPopup();" title="Close the calculator">Close</button>
+                </div>
+              </div>
+            </div>
             <!-- About popup -->
             <div id="about-box">
               <div class="card">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">About the prescribing dashboard</h6>
+                    <h4 class="m-0 font-weight-bold text-primary">About the prescribing dashboard</h6>
                   </div>
                   <div class="card-body">
-                    <p>?</p>
-                    <br />
+                    <div class="purpose">
+                      <h5>What is this for?</h5>
+                      <p>This Prescribing dashboard is an interactive dashboard for the ICB decision making.</p>
+                      <hr />
+                    </div>
+
+                    <div class="support">
+                      <h5>Support</h5>
+                      <p>If you have any questions or need help, please contact the team:</p><br />
+                      <div class="support-member">
+                        <h6>Rajun Phagura</h6>
+                        <p>Role: Product Owner</p>
+                        <p>Email: rajun.phagura@postgrad.manchester.ac.uk</p>
+                        <p>Responsibilities: holds the vision and is the key decision maker who prioritises what business problems the team should solve and in what order, based on the vision and the interests of the customer. </p>
+                        <br />
+                      </div>
+
+                      <div class="support-member">
+                        <h6>Mariyah Begum</h6>
+                        <p>Role: Developer/Tester</p>
+                        <p>Email: mariyah.begum@postgrad.manchester.ac.uk</p>
+                        <p>Responsibilities: Writing code, testing features,ensuring quality, collaborating with the team, delivering functional features.</p>
+                        <br />
+                      </div>
+
+                      <div class="support-member">
+                        <h6>Simranjeet Aujla</h6>
+                        <p>Role: Scrum Master</p>
+                        <p>Email: simranjeet.aujla@postgrad.manchester.ac.uk</p>
+                        <p>Responsibilities: supports the team, facilitates core scrum meetings and encourages continuous improvement.</p>
+                        <br />
+                      </div>
+
+                      <div class="support-member">
+                        <h6>Sarada Namene</h6>
+                        <p>Role: Developer/Tester</p>
+                        <p>Email: sarada.kedaginamane@postgrad.manchester.ac.uk</p>
+                        <p>Responsibilities: Writing code, testing features,ensuring quality, collaborating with the team, delivering functional features.</p>
+                        <br />
+                      </div>
+
+                      <div class="support-member">
+                        <h6>Heng Zhong</h6>
+                        <p>Role: Developer/Tester</p>
+                        <p>Email: heng.zhong-4@postgrad.manchester.ac.uk</p>
+                        <p>Responsibilities: Writing code, testing features,ensuring quality, collaborating with the team, delivering functional features.</p>
+                      </div>
+                    </div>
                     <hr />
-                    <button type="button" class="btn btn-danger" onclick="popup.hideAboutPopup();">Close</button>
+                    <button type="button" class="btn btn-danger" onclick="popup.hideAboutPopup();" title="Click to close the About Popup window">Close</button>
                   </div>
               </div>
             </div>
@@ -368,6 +600,7 @@
 
     <!-- Custom scripts for all pages-->
     <script src="{{ url_for('static', filename='js/sb-admin-2.min.js') }}"></script>
+
 
   </body>
 </html>

@@ -33,6 +33,26 @@
     z-index:9999;
 }
 
+#BMI-calc{
+    position:absolute;
+    top:2%;
+    left:10%;
+    width:45%;
+    height:auto;
+    display: none;
+    z-index:9999;
+}
+
+#conversion-calc{
+    position:absolute;
+    top:2%;
+    left:10%;
+    width:45%;
+    height:auto;
+    display: none;
+    z-index:9999;
+}
+
 #about-box{
     position:absolute;
     top:2%;
