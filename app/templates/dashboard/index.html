@@ -38,6 +38,8 @@
               Plotly.plot('chart',graphs,{});
               var graph_infection = {{ dashboard_data.infection_drug_data.graphJSON | safe }};
               Plotly.plot('chart_infection',graph_infection,{});
+              var graph_opioid = {{ dashboard_data.opioid_dependence_data.graphJSON | safe }};
+              Plotly.plot('chart_opioid',graph_opioid,{});
           });
     </script>
   </head>
@@ -81,7 +83,7 @@
         <!-- Divider -->
         <hr class="sidebar-divider">
 
-                <!-- Nav Item - Utilities Collapse Menu -->
+        <!-- Nav Item - Utilities Collapse Menu -->
         <li class="nav-item">
           <div class="nav-link" onclick="popup.showConvCalcFormPopup();" title="Click to use the conversion calculator">
             <i class="fas fa-calculator"></i>
@@ -265,6 +267,32 @@
                   </div>
                 </div>
               </div>
+
+              <!--Top PCT with most practices-->
+              <!-- PCT with most practices tile -->
+              <div class="col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                  <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                      <div class="col mr-2">
+                        <div class="row">
+                          <div class="col-md-6">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">PCT with Most Practices:</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ dashboard_data.top_pct_with_most_practices }}</div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Number of Practices:</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ dashboard_data.num_practices }}</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-auto">
+                        <i class="fas fa-hospital fa-2x text-gray-300"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Content Row -->
@@ -335,11 +363,26 @@
                       </table>
                     </div>
                   </div>
+               <!---------------------test code--------------->
+
+       <!-- Opioid Dependence Data -->
+                <div class="card shadow mb-4">
+                  <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">{{dashboard_data.opioid_dependence_data.header}}</h6>
+                  </div>
+                  <div class="card-body">
+                    <div id="chart_opioid" class="chart1"></div>
+                    <p>{{dashboard_data.opioid_dependence_data.description}}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+      <!------------------------------------------------------->
                 </div>
               </div>
             </div>
           </div>
-          
+
             <!-- Creatinine clearance calculator -->
             <div id="creat-calc">
               <div class="card">
@@ -356,19 +399,21 @@
                         <input type="radio" name="sex" value="f"> Female
                       </label>
                       <p>Age of patient (years):</p>
-                      <input type="number" min="1" max="120" name="patients-age" />
+                      <input type="number" id="patients-age" min="1" max="120" name="patients-age" />
                       <br /><br />
                       <p>Weight of patient (kg):</p>
-                      <input type="number" min="1" max="120" name="patients-weight" />
+                      <input type="number" id ="patients-weight" min="1" max="120" name="patients-weight" />
                       <br /><br />
                       <p>Serum creatinine (micromol/L):</p>
-                      <input type="number" min="1" max="120" name="patients-serum" />
+                      <input type="number" id="patients-serum" min="1" max="120" name="patients-serum" />
                       <br />
                     </div>
                     <br />
                     <hr />
-                    <button type="button" class="btn btn-primary" title="Click to calculate the creatinine clearance">Calculate</button>
+                    <button type="button" class="btn btn-primary" onclick="calcCreatinineClearance()" title="Click to calculate the creatinine clearance">Calculate</button>
                     <button type="button" class="btn btn-danger" onclick="popup.hideCeatCalcFormPopup();" title="Close the window">Close</button>
+                   <br /><br />
+                  <p id="serumCreatinineClearance-result" style="font-weight: bold;"></p>
                   </div>
                 </div>
             </div>
@@ -495,8 +540,16 @@
 
                       <div class="support-member">
                         <h6>Mariyah Begum</h6>
-                        <p>Role: Scrum Master</p>
+                        <p>Role: Developer/Tester</p>
                         <p>Email: mariyah.begum@postgrad.manchester.ac.uk</p>
+                        <p>Responsibilities: Writing code, testing features,ensuring quality, collaborating with the team, delivering functional features.</p>
+                        <br />
+                      </div>
+
+                      <div class="support-member">
+                        <h6>Simranjeet Aujla</h6>
+                        <p>Role: Scrum Master</p>
+                        <p>Email: simranjeet.aujla@postgrad.manchester.ac.uk</p>
                         <p>Responsibilities: supports the team, facilitates core scrum meetings and encourages continuous improvement.</p>
                         <br />
                       </div>
@@ -505,14 +558,6 @@
                         <h6>Sarada Namene</h6>
                         <p>Role: Developer/Tester</p>
                         <p>Email: sarada.kedaginamane@postgrad.manchester.ac.uk</p>
-                        <p>Responsibilities: Writing code, testing features,ensuring quality, collaborating with the team, delivering functional features.</p>
-                        <br />
-                      </div>
-
-                      <div class="support-member">
-                        <h6>Simranjeet Aujla</h6>
-                        <p>Role: Developer/Tester</p>
-                        <p>Email: simranjeet.aujla@postgrad.manchester.ac.uk</p>
                         <p>Responsibilities: Writing code, testing features,ensuring quality, collaborating with the team, delivering functional features.</p>
                         <br />
                       </div>

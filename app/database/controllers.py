@@ -61,6 +61,20 @@ def authenticate_user(email, password):
 class Database:
     """Class for managing database queries."""
     
+    def top_ten_practices_total_items(self):
+        """Returns top ten practices that prescribe the most items"""
+        top_practices = (
+            db.session.query(
+                PrescribingData.practice, 
+                func.sum(PrescribingData.items).label("total_items")
+            )
+            .filter(PrescribingData.items.isnot(None))  # Ensure no NULL values
+            .group_by(PrescribingData.practice)
+            .order_by(desc("total_items"))  # Sort in descending order
+            .limit(10)
+            .all()
+        )  
+    
     def convert_tuple_list_to_raw(self, tuple_list):
         """Helper function to convert results from tuple list to plain list."""
         order_row = [tuple(row) for row in tuple_list]
@@ -132,11 +146,16 @@ class Database:
     
     def get_infection_drug_count(self):
         counts = {
-            '0501': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0501%')).count(),
-            '0502': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0502%')).count(),
-            '0503': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0503%')).count(),
-            '0504': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0504%')).count(),
-            '0505': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0505%')).count(),
+            '0501': db.session.query(func.sum(PrescribingData.items))
+                    .filter(PrescribingData.BNF_code.like('0501%')).scalar() or 0,
+            '0502': db.session.query(func.sum(PrescribingData.items))
+                    .filter(PrescribingData.BNF_code.like('0502%')).scalar() or 0,
+            '0503': db.session.query(func.sum(PrescribingData.items))
+                    .filter(PrescribingData.BNF_code.like('0503%')).scalar() or 0,
+            '0504': db.session.query(func.sum(PrescribingData.items))
+                    .filter(PrescribingData.BNF_code.like('0504%')).scalar() or 0,
+            '0505': db.session.query(func.sum(PrescribingData.items))
+                    .filter(PrescribingData.BNF_code.like('0505%')).scalar() or 0,
         }
         return counts
     
@@ -202,4 +221,12 @@ class Database:
             drug: round((quantity / total_quantity) * 100,2) if total_quantity > 0 else 0
             for drug, quantity in quantities_by_drug.items()
         }
+        opioid_counts = {
+            'Buprenorphine': db.session.query(PrescribingData).filter(PrescribingData.BNF_name.like('Buprenorphine%')).count(),
+            'Lofexidine': db.session.query(PrescribingData).filter(PrescribingData.BNF_name.like('Lofexidine%')).count(),
+            'Methadone': db.session.query(PrescribingData).filter(PrescribingData.BNF_name.like('Methadone%')).count(),
+            'Naltrexone': db.session.query(PrescribingData).filter(PrescribingData.BNF_name.like('Naltrexone%')).count(),
+        }
+        return opioid_counts
+
 

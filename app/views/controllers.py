@@ -127,7 +127,10 @@ def home():
         "top_items_plot_data": generate_top_px_items_barchart_data(),
         "pct_list": pcts,
         "pct_data": selected_pct_data,
-        "infection_drug_data": generate_infection_drug_data()
+        "top_pct_with_most_practices": get_pct_with_most_practices(),
+        "num_practices": get_num_practices_for_pct(get_pct_with_most_practices()),
+        "infection_drug_data": generate_infection_drug_data(),
+        "opioid_dependence_data": generate_opioid_dependence_data(),
     }
 
     return render_template('dashboard/index.html', dashboard_data=dashboard_data)
@@ -244,5 +247,26 @@ def generate_opioid_dependence_data():
         'description': description
     }
     return plot_data
+    counts = db_mod.get_opioid_dependence_count()
+
+    labels = ["Buprenorphine", "Lofexidine", "Methadone", "Naltrexone"]
+    values = [counts['Buprenorphine'], counts['Lofexidine'], counts['Methadone'], counts['Naltrexone']]
+
+    fig1 = px.pie(values=values, names=labels, title="Percentage of Opioid dependence by BNF Name")
+    fig1.update_traces(textinfo='percent+label')
+
+    graphJSON1 = json.dumps(fig1, cls=plotly.utils.PlotlyJSONEncoder)
+    header1 = "Percentage of Opioid dependence "
+    description1 = "Pie chart showing the Opioid dependence by BNF name."
+    plot_data1 = {
+        'graphJSON': graphJSON1,
+        'header': header1,
+        'description': description1
+    }
+    # Debug statement
+    logging.debug(f"Generated plot data: {plot_data1}")
+
+    return plot_data1
+
 
 
