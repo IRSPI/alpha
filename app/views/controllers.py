@@ -209,3 +209,40 @@ def generate_infection_drug_data():
     logging.debug(f"Generated plot data: {plot_data}")
 
     return plot_data
+
+
+def get_pct_with_most_practices():
+    """Get the PCT code that contains the most GP practices."""
+    pct_code, _ = db_mod.get_pct_with_most_gp_practices()
+    return pct_code
+
+def get_num_practices_for_pct(pct_code):
+    """Get the number of GP practices for a given PCT code."""
+    _, num_practices = db_mod.get_pct_with_most_gp_practices()
+    return num_practices
+
+def generate_opioid_dependence_data():
+    """Generate the data needed to populate the opioid dependence treatment barchart."""
+    # Get percentage data for each drug
+    drug_percentages = db_mod.get_opioid_dependence_count()
+    # Create a dataframe with drug names and their percentages
+    df = pd.DataFrame({
+        "drug_names": list(drug_percentages.keys()),
+        "percentages": list(drug_percentages.values())
+    })
+    # Generate the bar chart
+    fig = px.bar(df, x="drug_names", y="percentages",
+                 labels={"drug_names": "Drug Name",
+                         "percentages": "Percentage (%)"}).update_xaxes(categoryorder="total descending")
+    # Convert the plot for rendering and add any metadata (description/header)
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    header = "Opioid Dependence Treatment Drug Distribution"
+    description = "Percentage breakdown of opioid dependence treatment by drug."
+    plot_data = {
+        'graphJSON': graphJSON,
+        'header': header,
+        'description': description
+    }
+    return plot_data
+
+

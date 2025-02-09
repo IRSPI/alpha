@@ -139,3 +139,67 @@ class Database:
             '0505': db.session.query(PrescribingData).filter(PrescribingData.BNF_code.like('0505%')).count(),
         }
         return counts
+    
+    '''Create and add a new summary tile with details of the PCT that contains the most GP practices. PCT code and number of practices'''
+    def get_pct_with_most_gp_practices(self):
+        """
+        Returns the PCT code that contains the most GP practices and the number of practices.
+        """
+        result = db.session.execute(
+            db.select(
+                PrescribingData.PCT,
+                func.count(distinct(PrescribingData.practice)).label('practice_count')
+            ).group_by(PrescribingData.PCT)
+            .order_by(desc('practice_count'))
+        ).first()
+
+        pct_code = result[0]
+        practice_count = result[1]
+
+        return pct_code, practice_count
+
+    def get_opioid_dependence_count(self):
+        """
+        Return the percentage contribution of QUANTITY for specified BNFCODE prefixes.
+        Methadone: 0410030C0
+        Buprenorphine: 0410030A0
+        Suboxone: 0410030B0
+        Naltrexone: 0410030E0
+        """
+        # Define the BNFCODE prefixes and their corresponding drug names
+        bnfcodes = {
+            '0410030C0': 'Methadone',
+            '0410030A0': 'Buprenorphine',
+            '0410030B0': 'Suboxone',
+            '0410030E0': 'Naltrexone',
+        }
+        # Query the database to filter by prefixes and sum QUANTITY
+        results = (
+            db.session.query(
+                PrescribingData.BNF_code,
+                func.sum(PrescribingData.items).label('quantity_sum')
+            )
+            .filter(
+                db.or_(
+                    *[PrescribingData.BNF_code.like(f"{prefix}%") for prefix in bnfcodes.keys()]
+                )
+            )
+            .group_by(PrescribingData.BNF_code)
+            .all()
+        )
+        # Aggregate quantities by drug name
+        quantities_by_drug = {drug: 0 for drug in bnfcodes.values()}
+        for code, quantity in results:
+            # Match the code prefix to the corresponding drug name
+            for prefix, drug in bnfcodes.items():
+                if code.startswith(prefix):
+                    quantities_by_drug[drug] += quantity
+                    break
+        # Calculate total QUANTITY across the specified BNFCODEs
+        total_quantity = sum(quantities_by_drug.values())
+        # Convert quantities to percentages
+        return {
+            drug: round((quantity / total_quantity) * 100,2) if total_quantity > 0 else 0
+            for drug, quantity in quantities_by_drug.items()
+        }
+
