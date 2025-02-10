@@ -324,64 +324,63 @@
               </div>
             </div>
 
-            <!-- Content Row -->
-            <div class="row last-row">
-
-              <div class="col-xl-6">
-                <!-- Show the BNF data for slected PCT -->
-                <div class="card shadow mb-4">
-                  <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">BNF data per PCT</h6>
-                  </div>
-                  <div class="card-body">
-                      <form method='POST' action="{{ url_for('dashboard.home') }}">
-                        <select class="custom-select" id="input-group-select" name="pct-option">
-                          {% for item in dashboard_data.pct_list %}
-                          <option name="option-list" value="{{ item }}">{{ item }}</option>
-                          {% endfor %}
-                        </select>
-                        <input type="submit" value="Update" class="btn btn-outline-secondary" />
-                      </form>
-                      <hr />
-                      <table class="table">
-                      <thead>
-                        <td>Practice</td>
-                        <td>BNF code</td>
-                        <td>BNF name</td>
-                        <td>Items</td>
-                      </thead>
-                        <tbody>
-                        {% for row in dashboard_data.pct_data %}
-                          <tr>
-                            <td>{{ row.practice }}</td>
-                            <td>{{ row.BNF_code }}</td>
-                            <td>{{ row.BNF_name }}</td>
-                            <td>{{ row.items }}</td>
-                          </tr>
-                        {% endfor %}
-                        </tbody>
-                      </table>
+                <!-- Content Row -->
+                <div class="row last-row">
+                  <!-- Left Column -->
+                  <div class="col-xl-6">
+                    <!-- BNF Data per PCT -->
+                    <div class="card shadow mb-4">
+                      <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">BNF data per PCT</h6>
+                      </div>
+                      <div class="card-body">
+                        <form method="POST" action="{{ url_for('dashboard.home') }}">
+                          <select class="custom-select" id="input-group-select" name="pct-option">
+                            {% for item in dashboard_data.pct_list %}
+                            <option name="option-list" value="{{ item }}">{{ item }}</option>
+                            {% endfor %}
+                          </select>
+                          <input type="submit" value="Update" class="btn btn-outline-secondary" />
+                        </form>
+                        <hr />
+                        <table class="table">
+                          <thead>
+                            <tr>
+                              <th>Practice</th>
+                              <th>BNF code</th>
+                              <th>BNF name</th>
+                              <th>Items</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for row in dashboard_data.pct_data %}
+                            <tr>
+                              <td>{{ row.practice }}</td>
+                              <td>{{ row.BNF_code }}</td>
+                              <td>{{ row.BNF_name }}</td>
+                              <td>{{ row.items }}</td>
+                            </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
-               <!---------------------test code--------------->
-
-       <!-- Opioid Dependence Data -->
-                <div class="card shadow mb-4">
-                  <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">{{dashboard_data.opioid_dependence_data.header}}</h6>
-                  </div>
-                  <div class="card-body">
-                    <div id="chart_opioid" class="chart1"></div>
-                    <p>{{dashboard_data.opioid_dependence_data.description}}</p>
+                
+                  <!-- Right Column -->
+                  <div class="col-xl-6">
+                    <!-- Opioid Dependence Data -->
+                    <div class="card shadow mb-4">
+                      <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">{{ dashboard_data.opioid_dependence_data.header }}</h6>
+                      </div>
+                      <div class="card-body">
+                        <div id="chart_opioid" class="chart1"></div>
+                        <p>{{ dashboard_data.opioid_dependence_data.description }}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-      <!------------------------------------------------------->
-                </div>
-              </div>
-            </div>
-          </div>
 
             <!-- Creatinine clearance calculator -->
             <div id="creat-calc">
@@ -514,6 +513,26 @@
                 </div>
               </div>
             </div>
+
+            <!-- Pop up for data sources -->
+            <div id="datasources-box">
+                <div class="card">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Data Sources</h6>
+                    </div>
+                    <div class="card-body">
+                        <p>Data source: NHS digital: Practice Level Prescribing in England.
+                            <Br/>Gives a list of all the medicines and appliances that are prescribed by the different practices in England.
+                            <Br/>
+                            <Br/> Last updated 05/02/2025 21:30
+                        </p>
+                        <br />
+                        <hr />
+                        <button type="button" class="btn btn-danger" onclick="popup.hidedatasourcesPopup();">Closes</button>    
+                    </div>
+                </div>
+            </div>
+ 
             <!-- About popup -->
             <div id="about-box">
               <div class="card">

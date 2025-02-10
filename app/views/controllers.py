@@ -163,7 +163,8 @@ def generate_data_for_tiles():
         "total_drug_cost": db_mod.get_total_drug_cost(),
         "top_px_item": quant_name,
         "top_px_perc": quant_perc,
-        "num_unique_items": db_mod.get_num_unique()
+        "num_unique_items": db_mod.get_num_unique(),
+
     }
     return tile_data
 

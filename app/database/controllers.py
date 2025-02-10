@@ -75,6 +75,11 @@ class Database:
             .all()
         )  
     
+    def get_distinct_areas(self):
+        """Returns the total number of areas"""
+        result = db.session.execute(db.select(PracticeData.area).distinct()).all()
+        return len(tuple(self.convert_tuple_list_to_raw(result)))
+    
     def convert_tuple_list_to_raw(self, tuple_list):
         """Helper function to convert results from tuple list to plain list."""
         order_row = [tuple(row) for row in tuple_list]
